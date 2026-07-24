@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M. Ali Sher's Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#8fd0f5;
+    --bg-mid:#c9ecfa;
+    --bg-bottom:#eef9fd;
+    --bg-grass-top:#eaf7d8;
+    --bg-grass:#bfe392;
+    --bg-grass-deep:#8ecb5c;
+    --glass:rgba(255,255,255,0.55);
+    --glass-strong:rgba(255,255,255,0.78);
+    --glass-border:rgba(255,255,255,0.85);
+    --aero-blue:#2196e0;
+    --aero-blue-dim:#5fb3e6;
+    --aero-blue-bright:#8fe3fb;
+    --aero-navy:#0f5b96;
+    --leaf:#7ac943;
+    --leaf-bright:#b6e86a;
+    --leaf-dim:#5aa832;
+    --leaf-deep:#2f7a1f;
+    --text:#0f3a54;
+    --text-dim:#4d7c94;
+    --glow: 0 1px 0 rgba(255,255,255,0.9), 0 0 12px rgba(33,150,224,0.3);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    background:linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 40%, var(--bg-bottom) 62%, var(--bg-grass-top) 75%, var(--bg-grass) 90%, var(--bg-grass-deep) 100%);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:'Segoe UI','Nunito Sans','Trebuchet MS',Tahoma,Geneva,sans-serif;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--aero-blue-bright);color:#053a5a;}
+
+  /* ---- Floating bubbles background ---- */
+  #matrix-canvas{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    z-index:0;pointer-events:none;display:block;
+  }
+
+  /* ---- Soft glass sheen overlay (subtle, no scanlines) ---- */
+  .crt::before{
+    content:"";
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 18%);
+    z-index:9998;
+  }
+  .crt::after{
+    content:"";
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(255,255,255,0) 60%, rgba(190,225,245,0.35) 100%);
+    z-index:9999;
+  }
+  @keyframes flicker{
+    0%{opacity:1;}
+    100%{opacity:1;}
+  }
+  .screen{
+    min-height:100vh;
+    position:relative;
+    z-index:1;
+  }
+
+  a{color:var(--aero-navy);text-decoration:none;overflow-wrap:anywhere;}
+  a:hover{text-decoration:underline;color:var(--aero-blue);}
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--aero-blue);
+    outline-offset:2px;
+  }
+
+  .chip, #audio-toggle, button.send-btn, .topbar nav a{
+    position:relative;overflow:hidden;
+  }
+  .chip::after, #audio-toggle::after, button.send-btn::after, .topbar nav a::after{
+    content:"";
+    position:absolute;top:-50%;left:-60%;width:35%;height:200%;
+    background:linear-gradient(115deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+    transform:rotate(8deg);
+    transition:left .5s ease;
+    pointer-events:none;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .chip:hover::after, #audio-toggle:hover::after, button.send-btn:hover::after, .topbar nav a:hover::after{
+      left:130%;
+    }
+  }
+
+  /* ---- Boot sequence (Windows 7 style startup) ---- */
+  #boot{
+    position:fixed;inset:0;
+    background:radial-gradient(ellipse at center, #1f7fc9 0%, #0a3a63 55%, #01111f 100%);
+    color:#eaf7ff;
+    z-index:10000;padding:30px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+    font-family:'Segoe UI','Nunito Sans',sans-serif;
+    overflow:hidden;
+  }
+  #boot::before{
+    content:"";
+    position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 60% 30% at 30% 20%, rgba(255,255,255,0.18), rgba(255,255,255,0) 70%),
+      radial-gradient(ellipse 50% 25% at 75% 75%, rgba(255,255,255,0.12), rgba(255,255,255,0) 70%);
+    pointer-events:none;
+  }
+  #boot-text{
+    font-size:clamp(22px, 5vw, 34px);
+    font-weight:600;
+    letter-spacing:0.5px;
+    color:#fff;
+    text-shadow:0 2px 12px rgba(0,20,50,0.6), 0 0 24px rgba(127,212,245,0.5);
+    animation:aero-fade 2.4s ease-in-out infinite;
+    position:relative;
+    z-index:1;
+  }
+  #boot-orb{
+    width:64px;height:64px;border-radius:50%;
+    margin-bottom:26px;
+    background:radial-gradient(circle at 35% 30%, #bdeeff, #4fb3e8 45%, #0f6ab5 85%);
+    box-shadow:0 0 30px rgba(127,212,245,0.6), inset 0 3px 6px rgba(255,255,255,0.7);
+    animation:aero-pulse 1.6s ease-in-out infinite;
+    position:relative;
+    z-index:1;
+    overflow:hidden;
+  }
+  #boot-orb img{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    border-radius:50%;
+  }
+  @keyframes aero-fade{
+    0%{opacity:0.35;}
+    50%{opacity:1;}
+    100%{opacity:0.35;}
+  }
+  @keyframes aero-pulse{
+    0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(127,212,245,0.6), inset 0 3px 6px rgba(255,255,255,0.7);}
+    50%{transform:scale(1.08);box-shadow:0 0 44px rgba(127,212,245,0.85), inset 0 3px 6px rgba(255,255,255,0.8);}
+  }
+
+  /* ---- Top bar (glass taskbar) ---- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(214,238,251,0.7) 100%);
+    border-bottom:1px solid var(--glass-border);
+    box-shadow:0 2px 10px rgba(21,90,146,0.15);
+    backdrop-filter:blur(8px);
+  }
+  .topbar{
+    max-width:980px;margin:0 auto;padding:10px 20px;
+    display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center;
+    font-size:16px;
+  }
+  .topbar .prompt-user{color:var(--aero-navy);font-weight:700;display:inline-flex;align-items:center;gap:8px;}
+  .start-orb{
+    display:inline-block;width:20px;height:20px;border-radius:50%;flex-shrink:0;
+    background:radial-gradient(circle at 35% 30%, #bdeeff, #4fb3e8 45%, #0f6ab5 85%);
+    box-shadow:0 0 8px rgba(127,212,245,0.55), inset 0 2px 3px rgba(255,255,255,0.75);
+  }
+  .topbar nav{display:flex;flex-wrap:wrap;gap:4px 6px;margin-left:auto;}
+  .topbar nav a{
+    display:inline-block;
+    padding:5px 12px;
+    border-radius:999px;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+    text-decoration:none;
+    color:var(--text);
+  }
+  .topbar nav a::before{content:"";}
+  .topbar nav a:focus-visible{
+    color:#fff;
+    background:linear-gradient(180deg, var(--aero-blue-bright), var(--aero-blue));
+    box-shadow:0 2px 8px rgba(21,90,146,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+    transform:translateY(-1px);
+    text-decoration:none;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .topbar nav a:hover{
+      color:#fff;
+      background:linear-gradient(180deg, var(--aero-blue-bright), var(--aero-blue));
+      box-shadow:0 2px 8px rgba(21,90,146,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+      transform:translateY(-1px);
+      text-decoration:none;
+    }
+  }
+
+  #audio-toggle{
+    font-family:'Segoe UI','Nunito Sans',sans-serif;
+    font-size:13.5px;
+    color:var(--aero-navy);
+    background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(210,236,251,0.85));
+    border:1px solid var(--glass-border);
+    border-radius:999px;
+    padding:6px 14px;
+    cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+    box-shadow:0 1px 3px rgba(21,90,146,0.2), inset 0 1px 0 rgba(255,255,255,0.9);
+    transition:box-shadow .15s ease, transform .15s ease;
+    white-space:nowrap;
+  }
+  #audio-toggle:focus-visible{
+    box-shadow:0 0 0 3px rgba(47,143,216,0.35), inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+  @media (hover:hover) and (pointer:fine){
+    #audio-toggle:hover{
+      transform:translateY(-1px);
+      box-shadow:0 3px 10px rgba(21,90,146,0.3), inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+  }
+  #audio-toggle[aria-pressed="true"]{
+    color:#fff;
+    background:linear-gradient(180deg, var(--aero-blue-bright), var(--aero-blue));
+    border-color:var(--aero-blue);
+  }
+
+  /* ---- Now-playing popup (Deltarune-style) ---- */
+  #now-playing{
+    position:fixed;
+    top:14px;left:50%;
+    transform:translate(-50%, -140%);
+    z-index:10500;
+    display:flex;align-items:center;gap:10px;
+    padding:10px 20px;
+    max-width:min(90vw, 480px);
+    background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(219,240,251,0.88));
+    border:1px solid var(--glass-border);
+    border-radius:16px;
+    box-shadow:0 6px 20px rgba(21,90,146,0.25), inset 0 1px 0 rgba(255,255,255,0.9);
+    font-family:'Segoe UI','Nunito Sans',sans-serif;
+    color:var(--aero-navy);
+    pointer-events:none;
+    opacity:0;
+    transition:transform .5s cubic-bezier(.2,.9,.25,1.15), opacity .4s ease;
+  }
+  #now-playing.show{
+    transform:translate(-50%, 0%);
+    opacity:1;
+  }
+  #now-playing .np-icon{
+    font-size:20px;color:var(--aero-blue);
+    animation:np-pulse 1.1s ease-in-out infinite;
+    flex-shrink:0;
+  }
+  @keyframes np-pulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.25);}
+  }
+  #now-playing .np-text{display:flex;flex-direction:column;line-height:1.25;min-width:0;}
+  #now-playing .np-label{font-size:11px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;}
+  #now-playing #np-track{
+    font-size:16px;color:var(--aero-navy);font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+
+  @media (max-width:640px){
+    #now-playing{top:8px;padding:8px 14px;max-width:92vw;}
+    #now-playing #np-track{font-size:13.5px;}
+  }
+
+  main{max-width:980px;margin:0 auto;padding:0 20px 80px;position:relative;}
+
+  .term-block{margin-top:56px;}
+  .term-block:first-of-type{margin-top:34px;}
+
+  .cmdline{
+    display:flex;align-items:center;flex-wrap:wrap;gap:6px;
+    font-size:14.5px;margin-bottom:10px;font-weight:600;
+    background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(222,240,251,0.6));
+    border:1px solid var(--glass-border);
+    border-radius:7px;
+    padding:7px 14px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 3px rgba(21,90,146,0.15);
+    color:var(--text-dim);
+  }
+  .cmdline .path-icon{font-size:15px;margin-right:2px;}
+  .cmdline .crumb{color:var(--text-dim);}
+  .cmdline .crumb.current{color:var(--aero-navy);font-weight:700;}
+  .cmdline .chevron{color:var(--aero-blue-dim);font-size:11px;}
+
+  .panel{
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--glass-border);
+    border-radius:18px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.4) 55%, rgba(223,243,251,0.5) 80%, rgba(219,240,200,0.55));
+    padding:22px 24px;
+    box-shadow: 0 10px 30px rgba(21,90,146,0.15), inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .panel::before{
+    content:"";
+    position:absolute;top:0;left:6%;right:6%;height:45%;
+    background:linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0));
+    border-radius:50% 50% 60% 60% / 100% 100% 0% 0%;
+    pointer-events:none;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .panel:hover{
+      transform:scale(1.01);
+      border-color:var(--aero-blue-dim);
+      box-shadow: 0 16px 40px rgba(21,90,146,0.25), inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+  }
+
+  h1,h2,h3{
+    font-family:'Segoe UI','Nunito Sans',sans-serif;
+    font-weight:800;
+    letter-spacing:0.2px;
+    text-shadow:var(--glow);
+    margin:0;
+    color:var(--aero-navy);
+  }
+  h2{font-size:32px;color:var(--aero-navy);}
+  h2 .tag{color:var(--text-dim);font-size:17px;font-family:'Segoe UI','Nunito Sans',sans-serif;font-weight:400;margin-left:10px;}
+
+  p{line-height:1.7;font-size:17px;color:var(--text);overflow-wrap:anywhere;}
+  .muted{color:var(--text-dim);}
+
+  /* ---- Hero ---- */
+  .hero{
+    display:grid;grid-template-columns:200px 1fr;gap:34px;align-items:center;
+    padding:46px 0 10px;
+  }
+  .avatar-frame{
+    width:200px;height:200px;border:4px solid rgba(255,255,255,0.85);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg, var(--aero-blue-bright), var(--aero-blue));
+    position:relative;
+    box-shadow: 0 0 0 2px var(--aero-blue-dim), 0 12px 30px rgba(21,90,146,0.35), 0 0 24px rgba(122,201,67,0.25), inset 0 4px 10px rgba(255,255,255,0.5);
+    overflow:hidden;
+  }
+  .avatar-frame::after{
+    content:"";
+    position:absolute;top:6%;left:12%;width:76%;height:42%;
+    background:linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0));
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .avatar-frame img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    border-radius:50%;
+  }
+  .avatar-fallback{
+    width:80%;height:80%;border:1px dashed rgba(255,255,255,0.8);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-size:13.5px;color:#fff;padding:10px;
+    font-family:'Segoe UI','Nunito Sans',sans-serif;
+  }
+
+  /* Desktop-only: give the pic some breathing room from the panel's left
+     edge, and align it to the top of the row instead of vertically
+     centering it against the (taller) bio text next to it. */
+  @media (min-width:641px){
+    .hero{align-items:start;}
+    .avatar-frame{margin-left:20px;}
+  }
+
+  .ascii-name{
+    font-family:'Segoe UI','Nunito Sans',sans-serif;
+    font-weight:800;
+    font-size:clamp(28px, 8vw, 50px);line-height:1.1;color:var(--aero-navy);
+    text-shadow:var(--glow);
+    white-space:normal;
+    overflow-wrap:break-word;
+    max-width:100%;
+  }
+  .role-line{font-size:19px;color:var(--aero-blue);margin-top:10px;font-weight:600;}
+  .role-line::before{content:"";}
+
+  hr.divider{
+    border:none;border-top:1px solid rgba(47,143,216,0.25);margin:44px 0;
+  }
+
+  /* ---- Directory listing (education/work) ---- */
+  .entry{
+    margin-bottom:26px;padding:12px 14px;border-radius:12px;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .entry:last-child{margin-bottom:0;}
+  @media (hover:hover) and (pointer:fine){
+    .entry:hover{
+      transform:scale(1.01);
+      background:rgba(255,255,255,0.55);
+      box-shadow: 0 8px 24px rgba(21,90,146,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+  }
+  .entry-head{
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;
+    border-bottom:1px solid rgba(47,143,216,0.2);padding-bottom:6px;margin-bottom:8px;
+  }
+  .entry-title{color:var(--aero-navy);font-size:19px;font-weight:700;overflow-wrap:anywhere;}
+  .entry-org{color:var(--leaf-deep);font-weight:600;}
+  .entry-date{color:var(--text-dim);font-size:15px;white-space:nowrap;}
+  ul.term-list{margin:6px 0 0;padding-left:0;list-style:none;}
+  ul.term-list li{padding-left:22px;position:relative;margin-bottom:6px;font-size:16.5px;}
+  ul.term-list li::before{content:"●";font-size:8px;color:var(--leaf-dim);position:absolute;left:2px;top:8px;}
+
+  /* ---- Projects grid = ls -la ---- */
+  .ls-header{
+    color:var(--text-dim);font-size:14px;border-bottom:1px solid rgba(47,143,216,0.2);
+    padding-bottom:8px;margin-bottom:6px;display:flex;gap:14px;text-transform:uppercase;letter-spacing:1px;
+  }
+  .proj{
+    border-bottom:1px solid rgba(47,143,216,0.15);
+    padding:16px 12px;
+    border-radius:12px;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .proj:last-child{border-bottom:none;}
+  @media (hover:hover) and (pointer:fine){
+    .proj:hover{
+      transform:scale(1.008);
+      background:rgba(255,255,255,0.55);
+      box-shadow: 0 8px 24px rgba(21,90,146,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+  }
+  .proj-row{
+    display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline;cursor:pointer;
+  }
+  .proj-perm{color:var(--text-dim);font-size:15px;width:100px;flex-shrink:0;}
+  .proj-name{color:var(--aero-navy);font-weight:700;font-size:18.5px;flex:1;min-width:0;overflow-wrap:anywhere;}
+  .proj-name::before{content:"\1F4C1";margin-right:8px;font-size:16px;}
+  .proj-date{color:var(--leaf-deep);font-size:14.5px;}
+  .proj-stack{color:var(--text-dim);font-size:14.5px;width:100%;margin-top:2px;}
+  .proj-details{
+    max-height:0;overflow:hidden;transition:max-height .4s ease;
+  }
+  .proj.open .proj-details{max-height:1500px;}
+  .proj-details-inner{padding:12px 0 4px 24px;}
+  .proj-row::before{content:"▸";color:var(--aero-blue);margin-right:2px;transition:transform .2s;}
+  .proj.open .proj-row::before{content:"▾";}
+
+  .proj-gif{
+    margin:4px 0 14px;
+  }
+  .proj-gif img{
+    display:block;width:100%;max-width:854px;aspect-ratio:854/480;object-fit:cover;
+    border:1px solid rgba(255,255,255,0.85);
+    border-radius:10px;
+    box-shadow: 0 8px 20px rgba(21,90,146,0.2);
+  }
+  .gif-fallback{
+    width:100%;max-width:854px;aspect-ratio:854/480;border:1px dashed var(--aero-blue-dim);
+    border-radius:10px;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-size:14.5px;color:var(--text-dim);padding:10px;
+  }
+  .proj-links{margin-top:10px;font-size:15px;}
+  .proj-links a::before{content:"↳ ";color:var(--aero-blue);}
+
+  /* ---- Skills as glossy pill chips ---- */
+  .specs{display:grid;grid-template-columns:200px 1fr;row-gap:14px;column-gap:14px;font-size:16.5px;}
+  .specs dt{color:var(--aero-navy);font-weight:700;}
+  .specs dd{margin:0;color:var(--text);}
+  .chip{
+    display:inline-block;border:1px solid rgba(255,255,255,0.8);border-radius:999px;
+    padding:3px 12px;margin:2px 4px 2px 0;
+    font-size:14px;color:var(--aero-navy);
+    background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(210,236,251,0.7));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 3px rgba(21,90,146,0.15);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .chip:hover{
+      transform:scale(1.07);
+      color:#fff;
+      background:linear-gradient(135deg, var(--aero-blue-bright), var(--aero-blue) 55%, var(--leaf-dim));
+      box-shadow: 0 4px 14px rgba(21,90,146,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+  }
+
+  /* ---- Honours ---- */
+  .badge-line{display:flex;gap:12px;align-items:flex-start;}
+  .badge-line .icon{color:var(--aero-blue);font-size:22px;line-height:1;}
+
+  /* ---- Contact form ---- */
+  form{display:flex;flex-direction:column;gap:16px;margin-top:14px;}
+  .field label{display:block;font-size:14.5px;color:var(--aero-navy);font-weight:600;margin-bottom:6px;}
+  .field label::before{content:"";}
+  input, textarea{
+    width:100%;background:rgba(255,255,255,0.75);border:1px solid var(--glass-border);color:var(--text);
+    border-radius:10px;
+    font-family:'Segoe UI','Nunito Sans',sans-serif;font-size:16px;padding:10px 14px;
+    box-shadow:inset 0 2px 4px rgba(21,90,146,0.1);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus, textarea:focus{border-color:var(--aero-blue);box-shadow:0 0 0 3px rgba(47,143,216,0.25);}
+  textarea{resize:vertical;min-height:120px;}
+  .btn-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
+  button.send-btn{
+    background:linear-gradient(180deg, var(--aero-blue-bright), var(--aero-blue));
+    color:#fff;border:1px solid var(--aero-navy);font-family:'Segoe UI','Nunito Sans',sans-serif;font-weight:700;
+    border-radius:999px;
+    font-size:16px;padding:10px 28px;cursor:pointer;letter-spacing:0.3px;
+    box-shadow:0 4px 12px rgba(21,90,146,0.35), inset 0 1px 0 rgba(255,255,255,0.6);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  button.send-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(21,90,146,0.45), inset 0 1px 0 rgba(255,255,255,0.6);}
+  #form-status{font-size:15px;color:var(--aero-navy);min-height:18px;}
+
+  footer{
+    text-align:center;padding:30px 20px 50px;color:var(--text-dim);font-size:15px;
+    position:relative;z-index:1;
+  }
+
+  @media (max-width:640px){
+    .hero{grid-template-columns:1fr;text-align:center;justify-items:center;}
+    .topbar{font-size:14px;}
+    .topbar nav{gap:2px 12px;}
+    .specs{grid-template-columns:1fr;}
+    .specs dt{margin-top:6px;}
+    .proj-name{width:100%;}
+    .proj-date{width:100%;margin-top:2px;}
+  }
+</style>
+</head>
+<body class="crt">
+
+<canvas id="matrix-canvas"></canvas>
+
+<div id="boot"><div id="boot-orb"></div><div id="boot-text">Loading Aero7 &mdash; Please Wait</div></div>
+
+<div class="screen" id="mainscreen" style="visibility:hidden;">
+
+<header>
+  <div class="topbar">
+    <img src="Images/icon.png" alt="" onerror="this.remove();"></span>Ali Sher</span>
+    <nav>
+      <a href="#profile">Profile</a>
+      <a href="#education">Education</a>
+      <a href="#work">Work</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#honours">Honours</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button id="audio-toggle" type="button" aria-pressed="false" aria-label="Cycle background audio track">
+      <span id="audio-icon">&#128227;</span> <span id="audio-label">track: off</span>
+    </button>
+    <button id="audio-toggle" type="button" aria-pressed="false" aria-label="Cycle background audio track" onclick="window.location.href='terminal.html'">
+        Change Theme
+    </button>
+  </div>
+</header>
+
+<audio id="bg-audio" preload="auto"></audio>
+
+<div id="now-playing" aria-live="polite">
+  <span class="np-icon">&#9835;</span>
+  <span class="np-text"><span class="np-label">now playing</span><span id="np-track">—</span></span>
+</div>
+
+<main>
+
+  <section id="profile" class="term-block">
+    <div class="cmdline"><span class="path-icon">&#128421;</span><span class="crumb">Computer</span><span class="chevron">&#9656;</span><span class="crumb">Ali Sher (C:)</span><span class="chevron">&#9656;</span><span class="crumb current">Profile</span></div>
+    <div class="panel hero">
+      <div class="avatar-frame">
+        <img id="avatar-img" src="Images/me.png" alt="Profile photo of Muhammad Ali Sher"
+             onerror="this.style.display='none'; document.getElementById('avatar-fallback').style.display='flex';">
+        <div class="avatar-fallback" id="avatar-fallback" style="display:none;">
+          [ IMAGE NOT FOUND ]<br>place file at<br>Images/me.png
+        </div>
+      </div>
+      <div>
+        <div class="ascii-name">MUHAMMAD ALI SHER</div>
+        <div class="role-line">CS Student @ NUCES FAST - AI/ML &amp; Low-Level Systems</div>
+        <p style="margin-top:18px;">
+          CS student at <strong>NUCES FAST</strong> with hands-on experience across the
+          <strong>AI/ML stack</strong> — from training deep learning models from scratch
+          (<strong>3D CNNs, PyTorch</strong>) to building <strong>LLM-powered systems</strong>
+          (RAG pipelines, quantized local inference, schema-validated agent outputs). Comfortable with
+          classical ML (<strong>scikit-learn</strong>, SVMs, clustering) as well as deep learning for
+          computer vision. This is backed by strong <strong>low-level systems skills</strong> —
+          C/C++, three assembly architectures, socket programming, and networking — giving me the
+          ability to optimize and deploy models efficiently, not just train them. Experienced with
+          <strong>SQL/MySQL</strong> for data-backed applications and Python
+          (<strong>NumPy, pandas, OpenCV, matplotlib</strong>) for data analysis and preprocessing.
+        </p>
+        <p class="muted" style="margin-top:6px;">
+          0314-0839665 &nbsp;|&nbsp;
+          <a href="mailto:muhammad.ali.sher@official.com">muhammad.ali.sher@official.com</a> &nbsp;|&nbsp;
+          <a href="https://www.linkedin.com/in/ali-sher-879b3830b/" target="_blank" rel="noopener">linkedin</a> &nbsp;|&nbsp;
+          <a href="https://github.com/Ali-Sher12" target="_blank" rel="noopener">github</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="education" class="term-block">
+    <div class="cmdline"><span class="path-icon">&#128193;</span><span class="crumb">Documents</span><span class="chevron">&#9656;</span><span class="crumb current">education.docx</span></div>
+    <div class="panel">
+      <div class="entry">
+        <div class="entry-head">
+          <span class="entry-title">Bachelor's in Computer Science <span class="entry-org">— NUCES FAST ISB</span></span>
+          <span class="entry-date">Aug. 2023 – Present</span>
+        </div>
+        <p>CGPA: 2.85</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head">
+          <span class="entry-title">Faculty of Science (Pre-Engineering) <span class="entry-org">— Emalah Foundation School &amp; College</span></span>
+          <span class="entry-date">June 2021 – Mar 2023</span>
+        </div>
+        <p>1027 / 1100 marks</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="work" class="term-block">
+    <div class="cmdline"><span class="path-icon">&#128193;</span><span class="crumb">Documents</span><span class="chevron">&#9656;</span><span class="crumb current">work_experience.docx</span></div>
+    <div class="panel">
+      <div class="entry">
+        <div class="entry-head">
+          <span class="entry-title">AI Intern <span class="entry-org">@ NESCOM, H-13 Islamabad</span></span>
+          <span class="entry-date">June - Aug 2026</span>
+        </div>
+        <ul class="term-list">
+          <li>Working as an AI intern at NESCOM, contributing to applied machine learning and computer vision projects spanning medical imaging and video-based anomaly detection.</li>
+          <li>Designed and trained a 3D Residual U-Net (PyTorch) for MRI image deblurring, building the full pipeline from patch-based data loading through mixed-precision training, checkpointing, and quantitative evaluation (L1, PSNR, SSIM).</li>
+          <li>Developing a real-time video anomaly detection system for security monitoring, fine-tuning pretrained detection and pose-estimation models to flag unusual human activity such as wall climbing and object throwing.</li>
+          <li>Explored retrieval-augmented generation and quantized local LLM inference for CPU-only deployment, evaluating trade-offs between model size, response accuracy, and latency for on-premise use cases.</li>
+          <li>Collaborated with engineers to translate research-level prototypes into structured, reproducible codebases suitable for further development.</li>
+        </ul>
+      </div>
+      <div class="entry">
+        <div class="entry-head">
+          <span class="entry-title">Teacher's Assistant — Computer Organization &amp; Assembly Language <span class="entry-org">@ FAST University</span></span>
+          <span class="entry-date">Aug. 2025 – Jan. 2026</span>
+        </div>
+        <ul class="term-list">
+          <li>Delivered lab lectures to Semester 3 students covering MIPS architecture, instruction sets, and low-level programming concepts.</li>
+          <li>Conducted a live technical demo implementing rasterized triangle rendering at the hardware level, bridging theory and practical graphics programming.</li>
+          <li>Designed, evaluated, and took live demos of assignments and quizzes, ensuring assessment integrity and providing technical feedback to students.</li>
+        </ul>
+      </div>
+      <div class="entry">
+        <div class="entry-head">
+          <span class="entry-title">Project Creation &amp; Design for OOP and PF <span class="entry-org">@ FAST University</span></span>
+          <span class="entry-date">Aug. 2024 – Present</span>
+        </div>
+        <ul class="term-list">
+          <li>Appointed by the Course Coordinator to create project details, project skeletons, and prototypes for final projects for Semester 1 and 2 students.</li>
+          <li>Designed creative projects such as Platforming Engines and Management Systems.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="projects" class="term-block">
+    <div class="cmdline"><span class="path-icon">&#128421;</span><span class="crumb">Computer</span><span class="chevron">&#9656;</span><span class="crumb">Ali Sher (C:)</span><span class="chevron">&#9656;</span><span class="crumb current">Projects</span></div>
+    <div class="panel">
+      <div class="ls-header">
+        <span style="flex:1;">Name</span><span>Date modified</span>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">3d_mri_deblurring_resunet</span>
+          <span class="proj-date">July 2026</span>
+          <span class="proj-stack">Python · PyTorch · 3D CNNs · Google Colab · Solo</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_1.gif" alt="3D MRI deblurring demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_1.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Designed and implemented a lightweight 3D Residual U-Net (ResUNet3D) in PyTorch to deblur MRI volumes, using skip connections between encoder and decoder stages to preserve fine anatomical detail while predicting a residual correction added back to the input scan.</li>
+            <li>Built a patch-based training pipeline (random 64³ crops) with mixed-precision (AMP) training and gradient scaling to fit large 3D volumes within single-GPU memory constraints on Colab, while keeping validation on held-out patients to track generalization.</li>
+            <li>Implemented checkpointing (latest + best-validation) and a full evaluation pipeline that runs inference on whole test volumes, computing L1, PSNR, and SSIM metrics alongside side-by-side slice visualizations comparing blurred, predicted, and ground-truth scans.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">local_rag_chatbot</span>
+          <span class="proj-date">June 2026</span>
+          <span class="proj-stack">Python · RAG · Quantized LLMs · CPU Inference · Solo</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_2.gif" alt="Local RAG chatbot demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_2.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Explored retrieval-augmented generation on CPU-only hardware using quantized models (Phi-4-mini, Llama-3.2-3B, Qwen2.5-1.5B), integrating a local document retrieval step to ground responses in relevant context before generation.</li>
+            <li>Compared quantization levels and model sizes to balance response accuracy against inference speed on limited hardware, identifying practical trade-offs for deploying LLMs without GPU access.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">reading_comprehension_quiz_gen</span>
+          <span class="proj-date">May 2026</span>
+          <span class="proj-stack">Python · Scikit-learn · Streamlit · NLTK · Team</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_3.gif" alt="Reading comprehension quiz generation demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_3.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Developed a dual-pipeline AI system using the RACE dataset to automate question generation, answer verification, and distractor ranking.</li>
+            <li>Model A (Verifier): supervised pipeline using Logistic Regression and SVMs on One-Hot Encoded and TF-IDF feature vectors.</li>
+            <li>Model B (Distractor &amp; Hint Generator): ranking system for semantically related but incorrect distractors, extractive hints via Cosine Similarity.</li>
+            <li>Integrated K-Means Clustering to identify latent question patterns vs. supervised baselines.</li>
+            <li>Built a multi-screen Streamlit dashboard with real-time inference and performance analytics (F1, Accuracy, Confusion Matrices).</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">home_security_anomaly_detection</span>
+          <span class="proj-date">August 2026</span>
+          <span class="proj-stack">Python · PyTorch · YOLO · Fine-tuning · Solo</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_4.gif" alt="Home security anomaly detection demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_4.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Building a real-time video anomaly detection pipeline to flag unusual human activity (e.g. wall climbing, object throwing) in home security footage.</li>
+            <li>Fine-tuning a pretrained YOLO-based detector and pose/action recognition model on a custom-labeled dataset of anomalous vs. normal activity, rather than training a detector from scratch.</li>
+            <li>Layering temporal logic (pose trajectory over frames) on top of per-frame detection to distinguish deliberate anomalous motion from normal movement patterns.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">pseudo_3d_raycasting_engine</span>
+          <span class="proj-date">June 2024 – Present</span>
+          <span class="proj-stack">C++ · Visual Studio · SFML · Socket Programming (C) · MySQL · Solo</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_5.gif" alt="Pseudo 3D raycasting engine demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_5.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Built a pseudo-3D rendering engine from scratch — DDA, raycasting, and dynamic lighting — with no game engine framework.</li>
+            <li>Engineered a real-time multiplayer system using TCP socket programming and a dedicated game server syncing player state.</li>
+            <li>Designed and integrated a relational MySQL database for persistent player data, session-based auth, and a live leaderboard.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">wireshark_traffic_analyzer</span>
+          <span class="proj-date">May 2026</span>
+          <span class="proj-stack">Python · Wireshark · Scapy · Solo</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_6.gif" alt="Wireshark network traffic analyzer demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_6.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Captured and analyzed live network traffic, documenting protocol behavior across TCP, UDP, DNS, HTTP, and ICMP.</li>
+            <li>Wrote Python/Scapy scripts to automate packet parsing — source/destination IPs, ports, payload sizes from pcap files.</li>
+            <li>Detected and flagged anomalous traffic (port scans, repeated failed handshakes), simulating basic intrusion detection.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">flight_sim_linux_threads</span>
+          <span class="proj-date">Sep. 2024 – Dec. 2024</span>
+          <span class="proj-stack">C/C++ · Linux · pthreads · SFML · Solo</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_7.gif" alt="Flight simulation demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_7.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Created a low-level flight simulator using user-level threads in Linux.</li>
+            <li>Implemented several low-level OS scheduling algorithms.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">youtube_educational_filter</span>
+          <span class="proj-date">Dec. 2025 – Jan. 2026</span>
+          <span class="proj-stack">JavaScript · HTML/CSS · Chrome Extension · Solo</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_8.gif" alt="YouTube educational filter demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_8.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Built a Chrome extension that filters YouTube content in real-time, blocking non-educational videos.</li>
+            <li>Implemented DOM mutation observers and SPA navigation detection for YouTube's dynamic loading.</li>
+            <li>Whitelist system by channel/keyword with CSS injection to hide blocked content before render.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-row" onclick="this.parentElement.classList.toggle('open')">
+          
+          <span class="proj-name">klt_feature_tracker_optimization</span>
+          <span class="proj-date">Sep. 2025 – Dec. 2025</span>
+          <span class="proj-stack">C++ · CUDA · GProf · Nvidia · Team</span>
+        </div>
+        <div class="proj-details"><div class="proj-details-inner">
+          <div class="proj-gif">
+            <img src="Images/project_9.gif" alt="KLT feature tracker optimization demo"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'gif-fallback',innerHTML:'[ GIF NOT FOUND ]&lt;br&gt;Images/project_9.gif'}));">
+          </div>
+          <ul class="term-list">
+            <li>Analyzed, rewrote, and optimized the KLT-Feature tracking algorithm.</li>
+            <li>Rewrote convolution programs in CUDA and optimized convolution kernels and other functions.</li>
+            <li>Achieved a significant speedup for large datasets.</li>
+          </ul>
+          <div class="proj-links"><a href="#" target="_blank" rel="noopener">add link to repository</a></div>
+        </div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="divider">
+
+<section id="skills" class="term-block">
+    <div class="cmdline"><span class="path-icon">&#9881;&#65039;</span><span class="crumb">Control Panel</span><span class="chevron">&#9656;</span><span class="crumb">System and Security</span><span class="chevron">&#9656;</span><span class="crumb current">System</span></div>
+    <div class="panel">
+      <dl class="specs">
+        <dt>Languages</dt>
+        <dd>
+          <span class="chip">Python</span><span class="chip">Java</span><span class="chip">C/C++</span>
+          <span class="chip">Kotlin</span><span class="chip">HTML/CSS</span><span class="chip">JavaScript</span>
+          <span class="chip">SQL</span><span class="chip">GDScript</span>
+          <span class="chip">Assembly (MIPS)</span><span class="chip">Assembly (MASM)</span><span class="chip">Assembly (RISC-V)</span>
+        </dd>
+        <dt>Machine Learning / AI</dt>
+        <dd>
+          <span class="chip">PyTorch</span><span class="chip">3D U-Net / CNNs</span><span class="chip">Hugging Face Transformers</span>
+          <span class="chip">DINOv2 / Vision Transformers</span><span class="chip">FAISS</span>
+          <span class="chip">Ollama</span><span class="chip">Pydantic</span><span class="chip">Scikit-learn</span>
+        </dd>
+        <dt>Computer Vision</dt>
+        <dd>
+          <span class="chip">OpenCV</span><span class="chip">Anomaly Detection</span><span class="chip">Video Stream Processing</span>
+        </dd>
+        <dt>Game Development</dt>
+        <dd>
+          <span class="chip">SFML</span><span class="chip">Unity</span><span class="chip">Godot 4</span>
+          <span class="chip">Cinemachine</span><span class="chip">FFmpeg</span>
+        </dd>
+        <dt>Mobile Development</dt>
+        <dd>
+          <span class="chip">Android Studio</span><span class="chip">AccessibilityService</span>
+          <span class="chip">UsageStatsManager</span>
+        </dd>
+        <dt>Embedded / Electronics</dt>
+        <dd>
+          <span class="chip">Arduino</span><span class="chip">pyserial</span><span class="chip">Proteus</span><span class="chip">Wokwi</span>
+        </dd>
+        <dt>High Performance Computing</dt>
+        <dd>
+          <span class="chip">OpenCL</span><span class="chip">CUDA</span><span class="chip">SIMD</span>
+          <span class="chip">OpenMP</span><span class="chip">MPI</span><span class="chip">pybind11</span>
+        </dd>
+        <dt>Web Development</dt>
+        <dd>
+          <span class="chip">React</span><span class="chip">Node.js</span><span class="chip">Express</span>
+          <span class="chip">SQLite</span>
+        </dd>
+        <dt>Developer Tools</dt>
+        <dd>
+          <span class="chip">Git</span><span class="chip">VS Code</span><span class="chip">Visual Studio</span>
+          <span class="chip">Eclipse</span><span class="chip">Trello</span><span class="chip">Vercel</span>
+          <span class="chip">Linux</span><span class="chip">CMake</span><span class="chip">Cursor</span>
+        </dd>
+        <dt>Libraries</dt>
+        <dd>
+          <span class="chip">Pandas</span><span class="chip">NumPy</span><span class="chip">Matplotlib</span>
+          <span class="chip">Socket Programming (C)</span>
+        </dd>
+      </dl>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="honours" class="term-block">
+    <div class="cmdline"><span class="path-icon">&#128193;</span><span class="crumb">Documents</span><span class="chevron">&#9656;</span><span class="crumb current">honours.docx</span></div>
+    <div class="panel">
+      <div class="badge-line">
+        
+        <p><strong>ICPC Participant</strong> — Competed at the Inter-University level, representing FAST ISB at GIKI.
+        Cleared internal qualifiers out of 50 teams to advance to the regional competition.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="contact" class="term-block">
+    <div class="cmdline"><span class="path-icon">&#9993;&#65039;</span><span class="crumb">Windows Live Mail</span><span class="chevron">&#9656;</span><span class="crumb current">New Message</span></div>
+    <div class="panel">
+      <p class="muted" style="margin-top:0;">Fill in the fields below to send a
+      message straight to <strong>muhammad.ali.sher@official.com</strong>.</p>
+      <form id="contact-form">
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required placeholder="Jane Doe">
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required placeholder="jane@example.com">
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" required placeholder="Type your message here..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="send-btn">Send Message</button>
+        </div>
+        <div id="form-status"></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="start-orb" aria-hidden="true" style="width:12px;height:12px;"></span> System Idle &nbsp;&middot;&nbsp; All Systems Nominal<br>
+  © <span id="year"></span> Muhammad Ali Sher
+</footer>
+
+</div>
+
+<script>
+  // ---------- Floating Aero bubbles + clouds background ----------
+  (function(){
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, bubbles, clouds;
+
+    // Touch devices / narrow viewports get fewer bubbles — keeps things
+    // light on phone GPUs.
+    const isCoarsePointer = window.matchMedia('(pointer:coarse)').matches || window.innerWidth <= 640;
+    const bubbleCount = isCoarsePointer ? 14 : 26;
+    const cloudCount = isCoarsePointer ? 3 : 5;
+    const frameInterval = 40;
+
+    function makeBubble(){
+      const r = 8 + Math.random()*46;
+      return {
+        x: Math.random()*width,
+        y: height + r + Math.random()*height,
+        r: r,
+        speed: 0.25 + Math.random()*0.6,
+        drift: (Math.random()-0.5)*0.4,
+        alpha: 0.10 + Math.random()*0.18,
+        // roughly 1 in 4 bubbles gets a leaf-green tint instead of blue
+        green: Math.random() < 0.25
+      };
+    }
+
+    function makeCloud(){
+      const w = 220 + Math.random()*260;
+      return {
+        x: -w + Math.random()*(width + w*2),
+        y: 30 + Math.random()*(height*0.55),
+        w: w,
+        h: w*0.38,
+        speed: 0.06 + Math.random()*0.1,
+        alpha: 0.05 + Math.random()*0.08
+      };
+    }
+
+    function resize(){
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      bubbles = new Array(bubbleCount).fill(0).map(() => {
+        const b = makeBubble();
+        b.y = Math.random()*height;
+        return b;
+      });
+      clouds = new Array(cloudCount).fill(0).map(() => makeCloud());
+    }
+    let resizeTimer = null;
+    window.addEventListener('resize', function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    });
+    resize();
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function draw(){
+      ctx.clearRect(0,0,width,height);
+
+      for(const c of clouds){
+        const grad = ctx.createRadialGradient(c.x + c.w/2, c.y + c.h/2, 4, c.x + c.w/2, c.y + c.h/2, c.w/2);
+        grad.addColorStop(0, `rgba(255,255,255,${c.alpha})`);
+        grad.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.beginPath();
+        ctx.fillStyle = grad;
+        ctx.ellipse(c.x + c.w/2, c.y + c.h/2, c.w/2, c.h/2, 0, 0, Math.PI*2);
+        ctx.fill();
+
+        c.x += c.speed;
+        if(c.x > width + c.w){
+          Object.assign(c, makeCloud());
+          c.x = -c.w;
+        }
+      }
+
+      for(const b of bubbles){
+        const grad = ctx.createRadialGradient(b.x - b.r*0.3, b.y - b.r*0.3, b.r*0.1, b.x, b.y, b.r);
+        grad.addColorStop(0, `rgba(255,255,255,${b.alpha + 0.3})`);
+        if(b.green){
+          grad.addColorStop(0.55, `rgba(190,230,150,${b.alpha + 0.05})`);
+          grad.addColorStop(1, `rgba(150,210,110,0)`);
+        } else {
+          grad.addColorStop(0.55, `rgba(160,220,250,${b.alpha + 0.05})`);
+          grad.addColorStop(1, `rgba(120,190,230,0)`);
+        }
+        ctx.beginPath();
+        ctx.fillStyle = grad;
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+        ctx.fill();
+
+        // thin bright rim to sell the "glass bubble" look
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(255,255,255,${b.alpha + 0.15})`;
+        ctx.lineWidth = 1;
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+        ctx.stroke();
+
+        b.y -= b.speed;
+        b.x += b.drift;
+        if(b.y + b.r < 0){
+          Object.assign(b, makeBubble());
+          b.y = height + b.r;
+        }
+      }
+    }
+
+    if(prefersReducedMotion){
+      ctx.clearRect(0,0,width,height);
+    } else {
+      let bubbleInterval = setInterval(draw, frameInterval);
+      // Stop redrawing while the tab is backgrounded — saves battery/CPU.
+      document.addEventListener('visibilitychange', function(){
+        if(document.hidden){
+          clearInterval(bubbleInterval);
+        } else {
+          clearInterval(bubbleInterval);
+          bubbleInterval = setInterval(draw, frameInterval);
+        }
+      });
+    }
+  })();
+
+  // ---------- Boot sequence ----------
+  const bootEl = document.getElementById('boot');
+  const mainScreen = document.getElementById('mainscreen');
+  const BOOT_DURATION = 2600; // ms the "Loading Aero7" screen stays up
+
+  function finishBoot(){
+    bootEl.style.transition = "opacity .5s ease";
+    bootEl.style.opacity = "0";
+    setTimeout(() => {
+      bootEl.style.display = "none";
+      mainScreen.style.visibility = "visible";
+    }, 500);
+  }
+
+  const prefersReducedMotionBoot = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(prefersReducedMotionBoot){
+    bootEl.style.display = "none";
+    mainScreen.style.visibility = "visible";
+  } else {
+    setTimeout(finishBoot, BOOT_DURATION);
+  }
+
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---------- Background audio (cycling playlist) ----------
+  (function(){
+    const bgAudio = document.getElementById('bg-audio');
+    const toggleBtn = document.getElementById('audio-toggle');
+    const labelEl = document.getElementById('audio-label');
+    const iconEl = document.getElementById('audio-icon');
+    const nowPlayingEl = document.getElementById('now-playing');
+    const npTrackEl = document.getElementById('np-track');
+    const VOLUME = 0.25;
+    const playlist = ['Audio/bg1a.mp3', 'Audio/bg2a.mp3', 'Audio/bg3a.mp3'];
+    const trackNames = [
+      'Nintendo Wii U - Mii Maker',
+      'LEASE - Takeshi Abo',
+      'Ax14 - Synthetic Landscape'
+    ];
+
+    // trackIndex === -1 means "off" (explicitly stopped). Otherwise it's
+    // the selected/currently-loaded track — defaults to 0 (Track 1) so the
+    // player always "defaults to" Puzzle Piece rather than nothing.
+    let trackIndex = 0;
+    let npTimer = null;
+    bgAudio.volume = VOLUME;
+    setUI();
+
+    function setUI(){
+      const playing = trackIndex >= 0 && !bgAudio.paused;
+      toggleBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      labelEl.textContent = trackIndex >= 0
+        ? `track ${trackIndex + 1}/${playlist.length}`
+        : 'track: off';
+      iconEl.textContent = playing ? '\u{1F4E3}' : '\u{1F507}';
+    }
+
+    function showNowPlaying(name){
+      npTrackEl.textContent = name;
+      nowPlayingEl.classList.add('show');
+      if(npTimer) clearTimeout(npTimer);
+      npTimer = setTimeout(() => nowPlayingEl.classList.remove('show'), 3200);
+    }
+
+    function playTrack(i){
+      trackIndex = i;
+      bgAudio.src = playlist[trackIndex];
+      bgAudio.load();
+      bgAudio.volume = VOLUME;
+      const p = bgAudio.play();
+      if(p && p.catch){
+        p.then(() => { setUI(); showNowPlaying(trackNames[trackIndex]); })
+         // Keep the selection (still "Track 1") even if the browser blocked
+         // autoplay — we just weren't allowed to start it without a tap yet.
+         .catch(() => { setUI(); });
+      } else {
+        setUI();
+        showNowPlaying(trackNames[trackIndex]);
+      }
+    }
+
+    function stopAudio(){
+      bgAudio.pause();
+      trackIndex = -1;
+      setUI();
+      nowPlayingEl.classList.remove('show');
+      if(npTimer) clearTimeout(npTimer);
+    }
+
+    function cycleTrack(){
+      const next = trackIndex + 1 >= playlist.length ? 0 : trackIndex + 1;
+      playTrack(next);
+    }
+
+    // Try to start Track 1 automatically once the boot sequence finishes.
+    // Browsers (especially on mobile) block audio-with-sound until the
+    // visitor has interacted with the page — that's a platform policy, not
+    // something any site code can override — so this may silently fail on
+    // first visit, but the selection still defaults to Track 1 either way.
+    setTimeout(() => playTrack(0), 1200);
+
+    // Tapping the megaphone: if nothing is currently playing, start/resume
+    // the currently-selected track (Track 1 by default) — never skips
+    // ahead just because a blocked autoplay attempt already claimed track 0.
+    // If something IS playing, cycle: 1 -> 2 -> 3 -> off -> 1 -> ...
+    toggleBtn.addEventListener('click', function(){
+      if(bgAudio.paused){
+        playTrack(trackIndex === -1 ? 0 : trackIndex);
+      } else if(trackIndex === playlist.length - 1){
+        stopAudio();
+      } else {
+        cycleTrack();
+      }
+    });
+
+    bgAudio.addEventListener('ended', cycleTrack);
+  })();
+
+  // ---------- Contact form: direct send via Formspree ----------
+  // Sign up free at https://formspree.io, create a form pointed at
+  // muhammad.ali.sher@official.com, and replace YOUR_FORM_ID below with
+  // the ID Formspree gives you (from the endpoint https://formspree.io/f/xxxxxxx).
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mzdnjgaz';
+
+  const form = document.getElementById('contact-form');
+  const statusEl = document.getElementById('form-status');
+  const sendBtn = form.querySelector('.send-btn');
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    sendBtn.disabled = true;
+    statusEl.textContent = "Sending message...";
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          message: message,
+          subject: `Portfolio message from ${name}`
+        })
+      });
+
+      if(res.ok){
+        statusEl.textContent = "Message sent! Expect a response soon.";
+        form.reset();
+      } else {
+        const data = await res.json().catch(() => null);
+        const errMsg = data && data.errors ? data.errors.map(e2 => e2.message).join(', ') : 'unknown error';
+        statusEl.textContent = `Send failed (${errMsg}). Email me directly at muhammad.ali.sher@official.com`;
+      }
+    } catch (err) {
+      statusEl.textContent = "Network error — email me directly at muhammad.ali.sher@official.com";
+    } finally {
+      sendBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
