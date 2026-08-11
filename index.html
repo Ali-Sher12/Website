@@ -126,10 +126,11 @@
   .start-orb svg { width: 14px; height: 14px; fill: #fff; }
   .user-name { font-weight: 700; font-size: 17px; color: var(--aero-navy); }
 
-  .topbar nav { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+  .topbar nav { display: flex; gap: 4px 6px; align-items: center; }
   .topbar nav a {
     padding: 6px 12px; border-radius: 999px; font-size: 14.5px; font-weight: 600;
     color: var(--text); transition: all 0.15s ease; min-height: 38px; display: inline-flex; align-items: center;
+    white-space: nowrap;
   }
   .topbar nav a:hover, .topbar nav a:focus-visible {
     color: #fff;
@@ -222,7 +223,7 @@
     background: linear-gradient(180deg, var(--aero-blue-bright), var(--aero-blue));
     position: relative;
     box-shadow: 0 0 0 2px var(--aero-blue-dim), 0 12px 28px rgba(11,69,117,0.3), inset 0 4px 10px rgba(255,255,255,0.6);
-    overflow: hidden; margin: 0 auto;
+    overflow: hidden; margin: 0;
   }
   .avatar-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
   .avatar-fallback {
@@ -232,8 +233,8 @@
   }
 
   .ascii-name {
-    font-weight: 800; font-size: clamp(26px, 5vw, 44px); line-height: 1.15;
-    color: var(--aero-navy); text-shadow: var(--glow); letter-spacing: -0.5px;
+    font-weight: 800; font-size: clamp(24px, 5vw, 44px); line-height: 1.15;
+    color: var(--aero-navy); text-shadow: var(--glow); letter-spacing: -0.5px; word-break: break-word;
   }
   .role-line { font-size: 18.5px; color: var(--aero-blue); margin-top: 8px; font-weight: 700; }
   p { line-height: 1.7; font-size: 16px; color: var(--text); margin-top: 14px; }
@@ -282,7 +283,7 @@
     width: 16px; height: 16px; transition: transform .2s ease; fill: var(--aero-blue); flex-shrink: 0;
   }
   .proj.open .proj-arrow { transform: rotate(90deg); }
-  .proj-name { color: var(--aero-navy); font-weight: 700; font-size: 17.5px; flex: 1; min-width: 220px; }
+  .proj-name { color: var(--aero-navy); font-weight: 700; font-size: 17.5px; flex: 1; min-width: 200px; }
   .proj-date { color: var(--leaf-deep); font-size: 14px; font-weight: 600; }
   .proj-stack { width: 100%; color: var(--text-dim); font-size: 14px; font-weight: 600; padding-left: 30px; }
   
@@ -323,7 +324,7 @@
   .field label { display: block; font-size: 14.5px; color: var(--aero-navy); font-weight: 700; margin-bottom: 6px; }
   input, textarea {
     width: 100%; background: rgba(255,255,255,0.85); border: 1px solid var(--glass-border); color: var(--text);
-    border-radius: 8px; font-family: inherit; font-size: 15.5px; padding: 11px 14px;
+    border-radius: 8px; font-family: inherit; font-size: 16px; padding: 11px 14px;
     box-shadow: inset 0 2px 4px rgba(11,69,117,0.08); transition: border-color .15s ease, box-shadow .15s ease;
   }
   input:focus, textarea:focus { border-color: var(--aero-blue); box-shadow: 0 0 0 3px rgba(27,140,216,0.25); outline: none; }
@@ -340,17 +341,52 @@
 
   footer { text-align: center; padding: 36px 20px 50px; color: var(--text-dim); font-size: 14.5px; font-weight: 600; }
 
+  /* Mobile Optimization Breakpoints */
   @media (max-width: 768px) {
-    .topbar { flex-direction: column; align-items: stretch; gap: 12px; }
+    .topbar { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px; }
     .brand-group { justify-content: space-between; width: 100%; }
-    .topbar nav { justify-content: center; width: 100%; }
-    .header-actions { justify-content: center; width: 100%; }
-    .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
-    .contact-bar { justify-content: center; }
-    .specs { grid-template-columns: 1fr; row-gap: 8px; }
-    .specs dt { margin-top: 10px; }
+    .topbar nav {
+      overflow-x: auto; white-space: nowrap; flex-wrap: nowrap; width: 100%; justify-content: flex-start;
+      padding-bottom: 4px; -webkit-overflow-scrolling: touch; border-bottom: 1px solid rgba(255,255,255,0.4);
+    }
+    .topbar nav a { font-size: 13px; padding: 4px 8px; }
+    .header-actions { justify-content: center; width: 100%; margin-top: 2px; }
+    main { padding: 0 10px; }
+    .panel-body { padding: 16px 12px; }
+    
+    /* Left aligned profile & smaller font sizes on mobile */
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: left;
+      justify-items: start;
+      align-items: start;
+      gap: 14px;
+    }
+    .avatar-frame {
+      width: 120px; height: 120px;
+      margin: 0;
+    }
+    .ascii-name { font-size: clamp(20px, 5vw, 24px); }
+    .role-line { font-size: 15px; margin-top: 4px; }
+    p { font-size: 14px; line-height: 1.55; }
+    .contact-bar {
+      justify-content: flex-start;
+      text-align: left;
+      font-size: 13px;
+      gap: 6px 12px;
+    }
+    .entry-title { font-size: 15.5px; }
+    .entry-date { font-size: 13px; }
+    ul.term-list li { font-size: 13.5px; line-height: 1.5; }
+    .proj-name { font-size: 15px; }
+    .proj-stack { font-size: 12.5px; }
+    .specs { grid-template-columns: 1fr; row-gap: 6px; }
+    .specs dt { margin-top: 10px; border-bottom: 1px solid var(--aero-blue-dim); padding-bottom: 2px; font-size: 14px; }
+    .chip { font-size: 12px; padding: 2px 7px; }
+    .proj-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .proj-name { width: 100%; }
+    .proj-date { width: 100%; }
     .proj-stack { padding-left: 0; }
-    .proj-details-inner { padding-left: 10px; padding-right: 10px; }
     button.send-btn { width: 100%; }
   }
 </style>
@@ -735,7 +771,7 @@
     <div class="panel">
       <div class="window-header">
         <div class="window-title">
-          <svg viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.93 2.93 0 1 1 0-5.86 2.93 2.93 0 0 1 0 5.86z"/></svg>
+          <svg viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283-.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105-.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.93 2.93 0 1 1 0-5.86 2.93 2.93 0 0 1 0 5.86z"/></svg>
           Technical Capabilities &mdash; Control Panel\System Specs
         </div>
         <div class="window-controls">

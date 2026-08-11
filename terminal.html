@@ -60,13 +60,19 @@
     outline: 2px solid var(--green-bright); outline-offset: 2px;
   }
 
-  /* Boot Sequence */
+  /* Boot Sequence with Typing Cursor */
   #boot {
     position: fixed; inset: 0; background: #000; color: var(--green);
-    z-index: 10000; padding: 30px; font-size: 16px; line-height: 1.5; white-space: pre-wrap;
+    z-index: 10000; padding: 24px; font-size: 16px; line-height: 1.5; white-space: pre-wrap;
+    font-family: 'Share Tech Mono', 'Courier New', monospace; overflow: auto;
   }
+  #boot .cursor {
+    display: inline-block; width: 9px; height: 17px; background: var(--green);
+    animation: blink 1s step-end infinite; vertical-align: middle;
+  }
+  @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
 
-  /* Top Bar */
+  /* Header Navigation */
   header {
     position: sticky; top: 0; z-index: 100;
     background: rgba(2, 10, 4, 0.95);
@@ -78,22 +84,25 @@
     display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between;
     font-size: 15px;
   }
-  .prompt-user { color: var(--amber); font-weight: bold; }
+  .prompt-user { color: var(--amber); font-weight: bold; white-space: nowrap; }
 
-  .topbar nav { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .topbar nav {
+    display: flex; gap: 4px 8px; align-items: center;
+  }
   .topbar nav a {
-    color: var(--green); text-decoration: none; padding: 4px 8px; border-radius: 3px;
-    transition: all .15s ease; min-height: 36px; display: inline-flex; align-items: center;
+    color: var(--green); text-decoration: none; padding: 6px 10px; border-radius: 3px;
+    transition: all .15s ease; min-height: 38px; display: inline-flex; align-items: center;
+    white-space: nowrap; font-size: 14.5px;
   }
   .topbar nav a::before { content: "./"; color: var(--green-dim); }
   .topbar nav a:hover { color: #fff; background: var(--line); box-shadow: var(--glow); text-decoration: none; }
 
   .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   #audio-toggle, .theme-select, #crt-toggle {
-    font-family: inherit; font-size: 13px; color: var(--green);
+    font-family: inherit; font-size: 13.5px; color: var(--green);
     background: var(--bg-panel); border: 1px solid var(--line);
-    padding: 5px 10px; cursor: pointer; min-height: 36px; white-space: nowrap;
-    transition: all 0.2s ease;
+    padding: 6px 12px; cursor: pointer; min-height: 38px; white-space: nowrap;
+    transition: all 0.2s ease; border-radius: 3px;
   }
   #audio-toggle:hover, .theme-select:hover, #crt-toggle:hover {
     color: #fff; border-color: var(--green); box-shadow: var(--glow);
@@ -117,7 +126,7 @@
   #np-track { font-size: 14.5px; color: var(--green-bright); font-weight: bold; text-shadow: var(--glow); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   main { max-width: 1040px; margin: 0 auto; padding: 0 14px; }
-  .term-block { margin-top: 32px; }
+  .term-block { margin-top: 28px; }
 
   .cmdline {
     font-size: 14.5px; color: var(--amber); margin-bottom: 8px; font-weight: bold;
@@ -136,34 +145,29 @@
     transform: translateY(-1px);
   }
 
-  .ascii-logo {
-    font-family: 'VT323', monospace; font-size: clamp(14px, 3.5vw, 24px); line-height: 1.1;
-    color: var(--green-bright); text-shadow: var(--glow); white-space: pre; overflow-x: auto;
-  }
-
-  /* Profile Avatar in Terminal Theme */
-  .hero { display: grid; grid-template-columns: 190px 1fr; gap: 24px; align-items: start; }
+  /* Profile Hero Layout */
+  .hero { display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: start; }
   .avatar-frame {
-    width: 190px; height: 190px; border: 2px solid var(--green);
-    border-radius: 4px; overflow: hidden; background: #000; margin: 0 auto;
+    width: 180px; height: 180px; border: 2px solid var(--green);
+    border-radius: 4px; overflow: hidden; background: #000; margin: 0;
     box-shadow: 0 0 14px rgba(51,255,102,0.3); transition: box-shadow 0.2s ease;
   }
-  .avatar-frame:hover { box-shadow: 0 0 22px rgba(51,255,102,0.6); }
+  .avatar-frame:hover { box-shadow: 0 0 24px rgba(51,255,102,0.65); }
   .avatar-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .avatar-fallback {
     width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
     text-align: center; font-size: 12px; color: var(--green-dim); padding: 8px; background: #000;
   }
 
-  .ascii-name { font-weight: bold; font-size: clamp(22px, 4.5vw, 36px); color: var(--green-bright); text-shadow: var(--glow); }
+  .ascii-name { font-weight: bold; font-size: clamp(22px, 4.5vw, 36px); color: var(--green-bright); text-shadow: var(--glow); word-break: break-word; }
   .role-line { font-size: 17.5px; color: var(--amber); margin-top: 6px; }
   p { line-height: 1.65; font-size: 15.5px; }
 
-  .contact-bar { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 14px; color: var(--green-bright); }
+  .contact-bar { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 14px; color: var(--green-bright); font-size: 14.5px; }
 
   /* Entry lists with Green Glow on Hover */
   .entry {
-    margin-bottom: 22px; padding: 14px; border: 1px solid var(--line);
+    margin-bottom: 20px; padding: 14px; border: 1px solid var(--line);
     background: rgba(5,24,12,0.6); transition: border-color .2s ease, box-shadow .2s ease;
   }
   .entry:last-child { margin-bottom: 0; }
@@ -199,8 +203,8 @@
   }
   .proj-arrow { color: var(--amber); font-weight: bold; transition: transform .2s ease; }
   .proj.open .proj-arrow { transform: rotate(90deg); }
-  .proj-name { color: var(--green-bright); font-weight: bold; font-size: 17px; flex: 1; min-width: 220px; }
-  .proj-date { color: var(--amber); font-size: 14px; }
+  .proj-name { color: var(--green-bright); font-weight: bold; font-size: 16.5px; flex: 1; min-width: 200px; }
+  .proj-date { color: var(--amber); font-size: 13.5px; }
   .proj-stack { width: 100%; color: var(--green-dim); font-size: 13.5px; padding-left: 18px; }
 
   .proj-details { max-height: 0; overflow: hidden; transition: max-height .4s ease; }
@@ -233,14 +237,14 @@
   .field label { display: block; font-size: 14.5px; color: var(--amber); margin-bottom: 4px; }
   input, textarea {
     width: 100%; background: #010602; border: 1px solid var(--line); color: var(--green-bright);
-    font-family: inherit; font-size: 15px; padding: 10px 12px;
+    font-family: inherit; font-size: 16px; padding: 11px 12px;
   }
   input:focus, textarea:focus { border-color: var(--green-bright); box-shadow: var(--glow); outline: none; }
   textarea { resize: vertical; min-height: 110px; }
   button.send-btn {
     background: var(--bg-panel); border: 1px solid var(--green); color: var(--green-bright);
-    font-family: inherit; font-weight: bold; font-size: 15px; padding: 10px 26px; cursor: pointer;
-    align-self: flex-start; min-height: 42px; transition: all 0.15s ease;
+    font-family: inherit; font-weight: bold; font-size: 15px; padding: 11px 26px; cursor: pointer;
+    align-self: flex-start; min-height: 44px; transition: all 0.15s ease;
   }
   button.send-btn:hover { background: var(--line); box-shadow: var(--glow); color: #fff; }
   #form-status { font-size: 14.5px; color: var(--amber); min-height: 20px; margin-top: 4px; }
@@ -248,22 +252,62 @@
   /* Bottom CLI Bar */
   .cli-dock {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-    background: #010803; border-top: 1px solid var(--line); padding: 10px 16px;
+    background: #010803; border-top: 1px solid var(--line); padding: 10px 14px;
     display: flex; align-items: center; gap: 10px; box-shadow: 0 -4px 15px rgba(0,0,0,0.6);
   }
   .cli-prompt { color: var(--amber); font-weight: bold; font-size: 15px; white-space: nowrap; }
   .cli-input {
     flex: 1; background: transparent; border: none; color: var(--green-bright);
-    font-family: inherit; font-size: 15.5px; outline: none; padding: 4px 0;
+    font-family: inherit; font-size: 16px; outline: none; padding: 4px 0;
   }
 
   footer { text-align: center; padding: 24px 14px 20px; color: var(--green-dim); font-size: 14px; }
 
+  /* Mobile Optimization Breakpoints */
   @media (max-width: 768px) {
-    .topbar { flex-direction: column; align-items: stretch; gap: 10px; }
-    .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+    .topbar { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px; }
+    .prompt-user { align-self: flex-start; }
+    .topbar nav {
+      overflow-x: auto; white-space: nowrap; flex-wrap: nowrap; width: 100%; justify-content: flex-start;
+      padding-bottom: 4px; -webkit-overflow-scrolling: touch; border-bottom: 1px dashed var(--line);
+    }
+    .topbar nav a { font-size: 13px; padding: 4px 8px; }
+    .header-actions { justify-content: center; width: 100%; margin-top: 2px; }
+    main { padding: 0 10px; }
+    .panel { padding: 14px 12px; }
+    
+    /* Left aligned profile & smaller font sizes on mobile */
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: left;
+      justify-items: start;
+      align-items: start;
+      gap: 14px;
+    }
+    .avatar-frame {
+      width: 120px; height: 120px;
+      margin: 0;
+    }
+    .ascii-name { font-size: clamp(20px, 5vw, 24px); }
+    .role-line { font-size: 15px; margin-top: 4px; }
+    p { font-size: 14px; line-height: 1.55; }
+    .contact-bar {
+      justify-content: flex-start;
+      text-align: left;
+      font-size: 13px;
+      gap: 6px 12px;
+    }
+    .entry-title { font-size: 15.5px; }
+    .entry-date { font-size: 13px; }
+    ul.term-list li { font-size: 13.5px; line-height: 1.5; }
+    .proj-name { font-size: 15px; }
+    .proj-stack { font-size: 12.5px; }
     .specs { grid-template-columns: 1fr; row-gap: 6px; }
-    .specs dt { margin-top: 8px; }
+    .specs dt { margin-top: 10px; border-bottom: 1px dashed var(--line); padding-bottom: 2px; font-size: 14px; }
+    .chip { font-size: 12px; padding: 2px 7px; }
+    .proj-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .proj-name { width: 100%; }
+    .proj-date { width: 100%; }
     .proj-stack { padding-left: 0; }
     button.send-btn { width: 100%; }
   }
@@ -276,13 +320,8 @@
 <div class="crt-overlay" id="crt-scanlines"></div>
 <div class="crt-vignette"></div>
 
-<div id="boot">
-C:\> BOOTING MS-DOS 6.22...
-MEMORY CHECK: 640K OK
-LOADING DRIVERS... OK
-INITIALIZING TERMINAL GUI...
-SYSTEM READY.
-</div>
+<!-- Boot Up Sequence Display -->
+<div id="boot"></div>
 
 <div class="screen" id="mainscreen" style="visibility:hidden;">
 
@@ -330,12 +369,6 @@ SYSTEM READY.
   <section id="profile" class="term-block">
     <div class="cmdline">C:\ALI-SHER> cat bio.txt</div>
     <div class="panel">
-      <pre class="ascii-logo">
-   __  ___  __  ______   __  ______  ___   ___   ___  _____  ______  ______
-  /  |/  / / / / / __ \ / / / / __ \/ _ \ / _ \ / _ \/ ___/ / / / / / / __ \
- / /|_/ / / /_/ / /_/ // /_/ / /_/ / /_/ / /_/ / /_/ / /___ / /_/ / / / /_/ /
-/_/  /_/  \____/\____/ \____/\____/_/ /_/_/ /_/_/ /_/\____/ \____/ /_/\____/ 
-      </pre>
 
       <div class="hero">
         <div class="avatar-frame">
@@ -775,14 +808,64 @@ SYSTEM READY.
     }
   }
 
-  // ---------- Boot Screen ----------
+  // ---------- Boot Sequence (Typing Animation) ----------
   (function(){
-    const boot = document.getElementById('boot');
+    const bootLines = [
+      "BIOS (C) ALI-SHER SYSTEMS v3.31",
+      "CPU: Motorola 68000 8 MHz",
+      "Memory Test: 640K OK",
+      "",
+      "Detecting devices...",
+      "  [OK] Assembly Coprocessor (MIPS/MASM/RISC-V)",
+      "  [OK] Socket Programming Module",
+      "  [OK] MySQL Storage Array",
+      "  [OK] CUDA Accelerator",
+      "",
+      "Loading PORTFOLIO.EXE ...",
+      "",
+      "Welcome, guest."
+    ];
+
+    const bootEl = document.getElementById('boot');
     const mainScreen = document.getElementById('mainscreen');
-    setTimeout(() => {
-      boot.style.display = 'none';
-      mainScreen.style.visibility = 'visible';
-    }, 1200);
+    let lineIdx = 0, charIdx = 0;
+    let buffer = "";
+
+    function typeBoot(){
+      if(lineIdx >= bootLines.length){
+        bootEl.innerHTML = buffer + '<span class="cursor">&nbsp;</span>';
+        setTimeout(finishBoot, 450);
+        return;
+      }
+      const line = bootLines[lineIdx];
+      if(charIdx <= line.length){
+        bootEl.innerHTML = buffer + line.slice(0, charIdx) + '<span class="cursor">&nbsp;</span>';
+        charIdx++;
+        setTimeout(typeBoot, 12 + Math.random()*16);
+      } else {
+        buffer += line + "\n";
+        lineIdx++;
+        charIdx = 0;
+        setTimeout(typeBoot, 70);
+      }
+    }
+
+    function finishBoot(){
+      bootEl.style.transition = "opacity .4s ease";
+      bootEl.style.opacity = "0";
+      setTimeout(() => {
+        bootEl.style.display = "none";
+        mainScreen.style.visibility = "visible";
+      }, 400);
+    }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(prefersReducedMotion){
+      bootEl.style.display = "none";
+      mainScreen.style.visibility = "visible";
+    } else {
+      typeBoot();
+    }
   })();
 
   // ---------- Terminal Theme Audio Playlist (OST Tracks) ----------
